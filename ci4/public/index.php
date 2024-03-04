@@ -1,105 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-    <link rel="stylesheet" href="Profile.css">
-    <script src="Java.js" defer></script>
+// Check PHP version.
+$minPhpVersion = '7.4'; // If you update this, don't forget to update `spark`.
+if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
+    $message = sprintf(
+        'Your PHP version must be %s or higher to run CodeIgniter. Current version: %s',
+        $minPhpVersion,
+        PHP_VERSION
+    );
 
-</head>
+    exit($message);
+}
 
-<body>
-    <div class="header">
-        <nav>
-            <h2 class="logo">Profile</h2>
-            <ul>
-                <li class="home">Home</li>
-                <li class="#">About</li>
-                <li class="message"><span class="icon">&#9993;</span></li>
-            </ul>
-        </nav>
+// Path to the front controller (this file)
+define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
 
-        <div class="content">
-            <h4>Hi my name is</h4>
-            <h1>James Albert B. David</h1>
-            <h3 id="section">BSIT - <span>MI222</span></h3>
-            <h3>Bachelor of Science in Information Technology with specialization in Mobile and Internet Technology<br>
-                Senior High School in <span>Rizal Technological Univercity</span> at Boni in Mandaluyong</h6>
-        </div>
-    </div>
+// Ensure the current directory is pointing to the front controller's directory
+if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
+    chdir(FCPATH);
+}
 
-    <!--About Section Start-->
-    <section class="about">
-        <div class="main">
-            <img src="images\about.jpg">
-            <div class="about-text">
-                <h2>About me</h2>
-                <h5>Dream & <span>Inspiration</span></h5>
-                <p>As a first-year student at APC pursuing a degree in Information Technology, I am a tall individual
-                    who finds joy in activities like riding bicycles and engaging in video games such as Point Blank,
-                    Mobile Legend, Cabal, and more. My preference for simplicity extends to various aspects of my life.
-                    Apart from my academic pursuits, I take pleasure in cooking, with binagoongan being my favorite
-                    dish. My ultimate aspiration is to evolve into a full-time web developer, driven by a passion for
-                    the intricacies of web development.</p>
-            </div>
-        </div>
-    </section>
+/*
+ *---------------------------------------------------------------
+ * BOOTSTRAP THE APPLICATION
+ *---------------------------------------------------------------
+ * This process sets up the path constants, loads and registers
+ * our autoloader, along with Composer's, loads our constants
+ * and fires up an environment-specific bootstrapping.
+ */
 
-    <!--Favorite section -->
-    <div class="Favorite">
-        <div class="title">
-            <h2>My Hobbies & Favorites</h2>
-        </div>
+// Load our paths config file
+// This is the line that might need to be changed, depending on your folder structure.
+require FCPATH . '../app/Config/Paths.php';
+// ^^^ Change this line if you move your application folder
 
-        <div class="box">
-            <div class="card">
-                <img src="images\card1.jpg">
-                <h5>Long Rides</h5>
-                <div class="first">
-                    <p>Riding a <span>bike & motorbike</span> provides a sense of freedom and an opportunity to
-                        disconnect from daily stressors. It also strengthens the muscles, increases stamina, and
-                        contributes to weight management.</p>
-                    <p style="text-align: center"><a class="button" href="#">learn more</a></p>
-                </div>
-            </div>
+$paths = new Config\Paths();
 
-            <div class="card">
-                <img src="images\card2.jpg">
-                <h5>Manga & Anime</h5>
-                <div class="first">
-                    <p><span>Manga and Anim</span> often explore intricate and imaginative storylines, filled with
-                        compelling characters, intricate plots, and unexpected twists. </p>
-                    <p style="text-align: center; margin-top: 80px"><a class="button" href="#">learn more</a></p>
-                </div>
-            </div>
+// Location of the framework bootstrap file.
+require rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
-            <div class="card">
-                <img src="images\card3.jpg">
-                <h5>Dogs</h5>
-                <div class="first">
-                    <p>Meet my lovely dog named <span>Thor</span> is the most adorable and lazy companion I have ever
-                        encountered. He has a charming laziness about him that never fails to bring a smile to my face.
-                    </p>
-                    <p style="text-align: center; margin-top: 50px"><a class="button" href="#">learn more</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
+// Load environment settings from .env files into $_SERVER and $_ENV
+require_once SYSTEMPATH . 'Config/DotEnv.php';
+(new CodeIgniter\Config\DotEnv(ROOTPATH))->load();
 
+// Define ENVIRONMENT
+if (! defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', env('CI_ENVIRONMENT', 'production'));
+}
 
+// Load Config Cache
+// $factoriesCache = new \CodeIgniter\Cache\FactoriesCache();
+// $factoriesCache->load('config');
+// ^^^ Uncomment these lines if you want to use Config Caching.
 
-    <div class="footer">
-        <h2 style="font-size: 35px; margin-bottom: 10px">Contact Information</h2>
-        <ul>
-            <li>Email: <a href="#">jbdavid@student.apc.edu.com.ph</a></li>
-            <li>Website: <a href="#" target="_blank">www.yourwebsite.com</a></li>
-            <li>GitHub: <a href="#" target="_blank">github.com/yourusername</a></li>
-        </ul>
-    </div>
+/*
+ * ---------------------------------------------------------------
+ * GRAB OUR CODEIGNITER INSTANCE
+ * ---------------------------------------------------------------
+ *
+ * The CodeIgniter class contains the core functionality to make
+ * the application run, and does all the dirty work to get
+ * the pieces all working together.
+ */
 
+$app = Config\Services::codeigniter();
+$app->initialize();
+$context = is_cli() ? 'php-cli' : 'web';
+$app->setContext($context);
 
-</body>
+/*
+ *---------------------------------------------------------------
+ * LAUNCH THE APPLICATION
+ *---------------------------------------------------------------
+ * Now that everything is set up, it's time to actually fire
+ * up the engines and make this app do its thang.
+ */
 
-</html>
+$app->run();
+
+// Save Config Cache
+// $factoriesCache->save('config');
+// ^^^ Uncomment this line if you want to use Config Caching.
+
+// Exits the application, setting the exit code for CLI-based applications
+// that might be watching.
+exit(EXIT_SUCCESS);
